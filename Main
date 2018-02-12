@@ -27,15 +27,15 @@ public class Main {
                 p = Pattern.compile("\\s+");
                 m = p.matcher(stringIn);
                 stringIn = m.replaceAll(" ");
-                System.out.println(stringIn);
+
 //*/
                 //меняем запятую на точку
                 p = Pattern.compile("\\,");
                 m = p.matcher(stringIn);
                 stringIn = m.replaceAll(".");
-                System.out.println(stringIn);
-                
-                Parser parser = new Parser();
+
+
+                Calculate parser = new Calculate();
 
                 System.out.println("Результат вычисления:");
                 System.out.println(parser.resultExpression(stringIn));
@@ -53,3 +53,4 @@ public class Main {
 
     }
 }
+
