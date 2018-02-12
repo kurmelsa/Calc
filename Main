@@ -1,0 +1,55 @@
+
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // write your code here
+
+        try {
+            System.out.println("Введите выражение:");
+            Scanner in = new Scanner(System.in);
+            String stringIn = in.nextLine();
+
+            if (stringIn.length() > 0) {
+                Pattern p = Pattern.compile("[a-zA-Z]");
+                Matcher m = p.matcher(stringIn);
+                if (m.find()) {
+                    System.out.println("Невалидное выражение: Наличие букв.");
+                    throw new Exception();
+                }
+
+                //           /*
+                //Удаляем лишние пробелы
+                p = Pattern.compile("\\s+");
+                m = p.matcher(stringIn);
+                stringIn = m.replaceAll(" ");
+                System.out.println(stringIn);
+//*/
+                //меняем запятую на точку
+                p = Pattern.compile("\\,");
+                m = p.matcher(stringIn);
+                stringIn = m.replaceAll(".");
+                System.out.println(stringIn);
+                
+                Parser parser = new Parser();
+
+                System.out.println("Результат вычисления:");
+                System.out.println(parser.resultExpression(stringIn));
+
+            } else {
+                System.out.println("Ошибка ввода данных.");
+            }
+
+        } catch (PatternSyntaxException e) {
+            System.out.println("Ошибка регулярного выражения:");
+            System.out.println(e.getDescription());
+        } catch (Exception e) {
+            System.out.println("Ошибка");
+        }
+
+    }
+}
