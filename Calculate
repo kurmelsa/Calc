@@ -1,18 +1,20 @@
 
+import java.math.BigDecimal;
+
 public class Calculate {
-    public double resultCalc;       //    результат вычеслений
+    public BigDecimal resultCalc;   //    результат вычеслений
     public String rest;             //    остаток строки, которую еще не обработали
 
     public Calculate() {
     }
 
-    public Calculate(double с, String r) {
+    public Calculate(BigDecimal с, String r) {
         this.resultCalc = с;
         this.rest = r;
     }
 
     // Парсим математическое выражение
-    public double resultExpression(String s) throws Exception {
+    public BigDecimal resultExpression(String s) throws Exception {
         if (s.isEmpty()) {
             throw new Exception("Пустая строка.");
         }
@@ -25,7 +27,7 @@ public class Calculate {
 
     private Calculate startFunc(String s) throws Exception {
         Calculate calc = plusMinus(s);
-        double resultCalc = calc.resultCalc;
+        BigDecimal resultCalc = calc.resultCalc;
         calc.rest = deleteSpaces(calc.rest);
 
         return new Calculate(resultCalc, calc.rest);
@@ -33,7 +35,7 @@ public class Calculate {
 
     private Calculate plusMinus(String s) throws Exception {
         Calculate calc = mulDiv(s);
-        double resultCalc = calc.resultCalc;
+        BigDecimal resultCalc = calc.resultCalc;
         calc.rest = deleteSpaces(calc.rest);
         while (calc.rest.length() > 0) {
             if (!(calc.rest.charAt(0) == '+' || calc.rest.charAt(0) == '-')) break;
@@ -41,10 +43,10 @@ public class Calculate {
             String next = calc.rest.substring(1);
             calc = startFunc(next);
             if (sign == '+'){
-                resultCalc += calc.resultCalc;
+                resultCalc =resultCalc.add(calc.resultCalc);
             }
             else {
-                resultCalc -= calc.resultCalc;
+                resultCalc =resultCalc.subtract(calc.resultCalc);
             }
         }
         return new Calculate(resultCalc, calc.rest);
@@ -52,7 +54,7 @@ public class Calculate {
 
     private Calculate mulDiv(String s) throws Exception {
         Calculate calc = exponentiation(s);
-        double resultCalc = calc.resultCalc;
+        BigDecimal resultCalc = calc.resultCalc;
         calc.rest = deleteSpaces(calc.rest);
         while (true) {
             if (calc.rest.length() == 0) return calc;
@@ -62,10 +64,10 @@ public class Calculate {
             Calculate right = exponentiation(next);
             switch (sign) {
                 case '*':
-                    resultCalc *= right.resultCalc;
+                    resultCalc = resultCalc.multiply(right.resultCalc);
                     break;
                 case '/':
-                    resultCalc /= right.resultCalc;
+                    resultCalc = resultCalc.divide(right.resultCalc);
                     break;
             }
             calc = new Calculate(resultCalc, right.rest);
@@ -74,7 +76,7 @@ public class Calculate {
 
     private Calculate exponentiation(String s) throws Exception {
         Calculate calc = bracket(s);
-        double resultCalc = calc.resultCalc;
+        BigDecimal resultCalc = calc.resultCalc;
 
         calc.rest = deleteSpaces(calc.rest);
         while (true)
@@ -85,8 +87,7 @@ public class Calculate {
                 break;
             String next = calc.rest.substring(1);
             calc = bracket(next);
-            calc.resultCalc = Math.pow(resultCalc, calc.resultCalc);
-
+           calc.resultCalc = BigDecimal.valueOf(Math.pow(Double.parseDouble(String.valueOf(resultCalc)), Double.parseDouble(String.valueOf(calc.resultCalc))));
         }
         return calc;
     }
@@ -128,9 +129,9 @@ public class Calculate {
             throw new Exception("Ошибка: не найдено число '" + s + "'");
         }
 
-        double resultCalc = Double.parseDouble(s.substring(0, i));
+        BigDecimal resultCalc = BigDecimal.valueOf(Double.parseDouble(s.substring(0, i)));
         if (negative) {
-            resultCalc = -resultCalc;
+            resultCalc = resultCalc.negate();
         }
         String rest = s.substring(i);
         return new Calculate(resultCalc, rest);
@@ -139,5 +140,4 @@ public class Calculate {
     private String deleteSpaces(String s) {
         return s.trim();
     }
-
 }
