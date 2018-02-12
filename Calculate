@@ -1,0 +1,140 @@
+public class Calculate {
+    public double resultCalc;       //    результат вычеслений
+    public String rest;             //    остаток строки, которую еще не обработали
+
+    public Calculate() {
+
+    }
+    public Calculate(double с, String r) {
+        this.resultCalc = с;
+        this.rest = r;
+    }
+
+    // Парсим математическое выражение
+    public double resultExpression(String s) throws Exception {
+        if (s.isEmpty()) {
+            throw new Exception("Пустая строка.");
+        }
+        Calculate result = plusMinus(s);
+        if (!result.rest.isEmpty()) {
+            throw new Exception("Ошибка разбора выражения \n " + "rest: " + result.rest);
+        }
+        return result.resultCalc;
+    }
+
+    private Calculate startFunc(String s) throws Exception {
+        Calculate calc = plusMinus(s);
+        double resultCalc = calc.resultCalc;
+        calc.rest = deleteSpaces(calc.rest);
+
+        return new Calculate(resultCalc, calc.rest);
+    }
+
+    private Calculate plusMinus(String s) throws Exception {
+        Calculate calc = mulDiv(s);
+        double resultCalc = calc.resultCalc;
+        calc.rest = deleteSpaces(calc.rest);
+        while (calc.rest.length() > 0) {
+            if (!(calc.rest.charAt(0) == '+' || calc.rest.charAt(0) == '-')) break;
+            char sign = calc.rest.charAt(0);
+            String next = calc.rest.substring(1);
+            calc = startFunc(next);
+            if (sign == '+'){
+                resultCalc += calc.resultCalc;
+            }
+            else {
+                resultCalc -= calc.resultCalc;
+            }
+        }
+        return new Calculate(resultCalc, calc.rest);
+    }
+
+    private Calculate mulDiv(String s) throws Exception {
+        Calculate calc = exponentiation(s);
+        double resultCalc = calc.resultCalc;
+        calc.rest = deleteSpaces(calc.rest);
+        while (true) {
+            if (calc.rest.length() == 0) return calc;
+            char sign = calc.rest.charAt(0);
+            if (sign != '*' && sign != '/') return calc;
+            String next = calc.rest.substring(1);
+            Calculate right = exponentiation(next);
+            switch (sign) {
+                case '*':
+                    resultCalc *= right.resultCalc;
+                    break;
+                case '/':
+                    resultCalc /= right.resultCalc;
+                    break;
+            }
+            calc = new Calculate(resultCalc, right.rest);
+        }
+    }
+
+    private Calculate exponentiation(String s) throws Exception {
+        Calculate calc = bracket(s);
+        double resultCalc = calc.resultCalc;
+
+        calc.rest = deleteSpaces(calc.rest);
+        while (true)
+        {
+            if (calc.rest.length() == 0)
+                return calc;
+            if (calc.rest.charAt(0) != '^')
+                break;
+            String next = calc.rest.substring(1);
+            calc = bracket(next);
+            calc.resultCalc = Math.pow(resultCalc, calc.resultCalc);
+        }
+        return calc;
+    }
+
+    private Calculate bracket(String s) throws Exception {
+        s = deleteSpaces(s);
+        char zeroChar = s.charAt(0);
+        if (zeroChar == '(') {
+            Calculate r = plusMinus(s.substring(1));
+            startFunc(s.substring(1));
+            if (!r.rest.isEmpty()) {
+                r.rest = r.rest.substring(1);
+            } else {
+                throw new Exception("Ошибка: не найдена закрывающая скобка");
+            }
+            return r;
+        }
+        return num(s);
+    }
+
+    private Calculate num(String s) throws Exception {
+        int i = 0;
+        int dot_cnt = 0;
+        boolean negative = false;
+//        число также может начинаться с минуса
+        if (s.charAt(0) == '-') {
+            negative = true;
+            s = s.substring(1);
+        }
+//        разрешаем только цифры и точку
+        while (i < s.length() && (Character.isDigit(s.charAt(i)) || s.charAt(i) == '.')) {
+//            но также проверяем, что в числе может быть только одна точка !
+            if (s.charAt(i) == '.' && ++dot_cnt > 1) {
+                throw new Exception("Невалидное выражение '" + s.substring(0, i + 1) + "'");
+            }
+            i++;
+        }
+        if (i == 0) {
+            throw new Exception("Ошибка: не найдено число '" + s + "'");
+        }
+        double resultCalc = Double.parseDouble(s.substring(0, i));
+        if (negative) {
+            resultCalc = -resultCalc;
+        }
+        String rest = s.substring(i);
+        return new Calculate(resultCalc, rest);
+    }
+
+    private String deleteSpaces(String s) {
+        return s.trim();
+    }
+
+}
