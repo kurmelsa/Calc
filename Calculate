@@ -1,10 +1,11 @@
+
 public class Calculate {
     public double resultCalc;       //    результат вычеслений
     public String rest;             //    остаток строки, которую еще не обработали
 
     public Calculate() {
-
     }
+
     public Calculate(double с, String r) {
         this.resultCalc = с;
         this.rest = r;
@@ -85,6 +86,7 @@ public class Calculate {
             String next = calc.rest.substring(1);
             calc = bracket(next);
             calc.resultCalc = Math.pow(resultCalc, calc.resultCalc);
+
         }
         return calc;
     }
@@ -102,10 +104,10 @@ public class Calculate {
             }
             return r;
         }
-        return num(s);
+        return number(s);
     }
 
-    private Calculate num(String s) throws Exception {
+    private Calculate number(String s) throws Exception {
         int i = 0;
         int dot_cnt = 0;
         boolean negative = false;
@@ -125,6 +127,7 @@ public class Calculate {
         if (i == 0) {
             throw new Exception("Ошибка: не найдено число '" + s + "'");
         }
+
         double resultCalc = Double.parseDouble(s.substring(0, i));
         if (negative) {
             resultCalc = -resultCalc;
